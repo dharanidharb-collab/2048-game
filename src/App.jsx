@@ -145,40 +145,42 @@ function hasWon(board) {
 
 function App() {
   const [board, setBoard] = useState(createInitialBoard());
+  const [won, setWon] = useState(false);
 
   function resetGame() {
     setBoard(createInitialBoard());
+    setWon(false);
   }
 
   useEffect(() => {
     function handleKeyDown(event) {
-      let newBoard = board;
+      let newBoard = null;
 
       if (event.key === "ArrowLeft") {
         newBoard = moveLeft(board);
       }
-      if (event.key === "ArrowRight") {
+      else if (event.key === "ArrowRight") {
         newBoard = moveRight(board);
       }
-      if (event.key === "ArrowUp") {
+      else if (event.key === "ArrowUp") {
         newBoard = moveUp(board);
       }
-      if(event.key === "ArrowDown") {
+      else if (event.key === "ArrowDown") {
         newBoard = moveDown(board);
       }
 
+      if (!newBoard) return;
+
       const boardChanged = JSON.stringify(board) !== JSON.stringify(newBoard);
       
-      if (boardChanged) {
-        setBoard(addRandomTile(newBoard));
-      }
-      
+      if (!boardChanged) return;
+
       const finalBoard = addRandomTile(newBoard);
 
       setBoard(finalBoard);
 
-      if (hasWon(newBoard)) {
-      alert("You Win!");
+      if (hasWon(finalBoard) && !won) {
+        setWon(true);
       }
 
       if (!canMove(finalBoard)) {
@@ -191,7 +193,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [board]);
+  }, [board, won]);
 
   return (
     <div className="game">
@@ -200,6 +202,8 @@ function App() {
       <button className="reset-button" onClick={resetGame}>
         Reset Game
       </button>
+
+      {won && <h2>You reached 2048! Keep going!</h2>}
 
       <div className="board">
         {board.flat().map((tile, index) => (
