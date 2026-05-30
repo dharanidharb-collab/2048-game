@@ -10,24 +10,48 @@ function createInitialBoard() {
   ];
 }
 
+function compressRow(row) {
+  const filteredRow = row.filter((tile) => tile !== 0);
+
+  while (filteredRow.length < 4) {
+    filteredRow.push(0);
+  }
+
+  return filteredRow;
+}
+
+function mergeRow(row) {
+  const newRow = [...row];
+
+  for (let i = 0; i < newRow.length - 1; i++) {
+    if (newRow[i] !== 0 && newRow[i] === newRow[i + 1]) {
+      newRow[i] *= 2;
+      newRow[i + 1] = 0;
+    }
+  }
+
+  return newRow;
+}
+
 function moveLeft(board) {
   return board.map((row) => {
-    let filteredRow = row.filter((tile) => tile !== 0);
+    let newRow = compressRow(row);
+    newRow = mergeRow(newRow);
+    newRow = compressRow(newRow);
 
-    for (let i = 0; i < filteredRow.length - 1; i++) {
-      if (filteredRow[i] === filteredRow[i + 1]) {
-        filteredRow[i] *= 2;
-        filteredRow[i + 1] = 0;
-      }
-    }
+    return newRow;
+  });
+}
 
-    filteredRow = filteredRow.filter((tile) => tile !== 0);
+function moveRight(board) {
+  return board.map((row) => {
+    let newRow = [...row].reverse();
 
-    while (filteredRow.length < 4) {
-      filteredRow.push(0);
-    }
+    newRow = compressRow(newRow);
+    newRow = mergeRow(newRow);
+    newRow = compressRow(newRow);
 
-    return filteredRow;
+    return newRow.reverse();
   });
 }
 
@@ -69,6 +93,11 @@ function App() {
     function handleKeyDown(event) {
       if (event.key === "ArrowLeft") {
         const movedBoard = moveLeft(board);
+        const newBoard = addRandomTile(movedBoard);
+        setBoard(newBoard);
+      }
+      if (event.key === "ArrowRight") {
+        const movedBoard = moveRight(board);
         const newBoard = addRandomTile(movedBoard);
         setBoard(newBoard);
       }
