@@ -33,6 +33,12 @@ function mergeRow(row) {
   return newRow;
 }
 
+function transpose(board) {
+  return board[0].map((_, colIndex) =>
+    board.map((row) => row[colIndex])
+  );
+}
+
 function moveLeft(board) {
   return board.map((row) => {
     let newRow = compressRow(row);
@@ -53,6 +59,22 @@ function moveRight(board) {
 
     return newRow.reverse();
   });
+}
+
+function moveUp(board) {
+  const transposed = transpose(board);
+
+  const moved = moveLeft(transposed);
+
+  return transpose(moved);
+}
+
+function moveDown(board) {
+  const transposed = transpose(board);
+
+  const moved = moveRight(transposed);
+
+  return transpose(moved);
 }
 
 function addRandomTile(board) {
@@ -82,6 +104,45 @@ function addRandomTile(board) {
   return newBoard;
 }
 
+function hasEmptyCells(board) {
+  return board.some((row) =>
+    row.some((tile) => tile === 0)
+  );
+}
+
+function canMove(board) {
+  if (hasEmptyCells(board)) {
+    return true;
+  }
+
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 4; col++) {
+
+      if (
+        row < 3 &&
+        board[row][col] === board[row + 1][col]
+      ) {
+        return true;
+      }
+
+      if (
+        col < 3 &&
+        board[row][col] === board[row][col + 1]
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function hasWon(board) {
+  return board.some((row) =>
+    row.some((tile) => tile === 2048)
+  );
+}
+
 function App() {
   const [board, setBoard] = useState(createInitialBoard());
 
@@ -91,15 +152,37 @@ function App() {
 
   useEffect(() => {
     function handleKeyDown(event) {
+      let newBoard = board;
+
       if (event.key === "ArrowLeft") {
-        const movedBoard = moveLeft(board);
-        const newBoard = addRandomTile(movedBoard);
-        setBoard(newBoard);
+        newBoard = moveLeft(board);
       }
       if (event.key === "ArrowRight") {
-        const movedBoard = moveRight(board);
-        const newBoard = addRandomTile(movedBoard);
-        setBoard(newBoard);
+        newBoard = moveRight(board);
+      }
+      if (event.key === "ArrowUp") {
+        newBoard = moveUp(board);
+      }
+      if(event.key === "ArrowDown") {
+        newBoard = moveDown(board);
+      }
+
+      const boardChanged = JSON.stringify(board) !== JSON.stringify(newBoard);
+      
+      if (boardChanged) {
+        setBoard(addRandomTile(newBoard));
+      }
+      
+      const finalBoard = addRandomTile(newBoard);
+
+      setBoard(finalBoard);
+
+      if (hasWon(newBoard)) {
+      alert("You Win!");
+      }
+
+      if (!canMove(finalBoard)) {
+      alert("Game Over!");
       }
     }
 
