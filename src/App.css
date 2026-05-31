@@ -17,6 +17,12 @@ h1 {
   margin-bottom: 12px;
 }
 
+h2 {
+  font-size: 24px;
+  color: #7c4607;
+  margin-bottom: 12px;
+}
+
 .reset-button {
   margin-bottom: 20px;
   padding: 10px 16px;

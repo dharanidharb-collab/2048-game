@@ -22,15 +22,17 @@ function compressRow(row) {
 
 function mergeRow(row) {
   const newRow = [...row];
+  let points = 0;
 
   for (let i = 0; i < newRow.length - 1; i++) {
     if (newRow[i] !== 0 && newRow[i] === newRow[i + 1]) {
       newRow[i] *= 2;
+      points += newRow[i];
       newRow[i + 1] = 0;
     }
   }
 
-  return newRow;
+  return { row: newRow, points };
 }
 
 function transpose(board) {
@@ -40,41 +42,68 @@ function transpose(board) {
 }
 
 function moveLeft(board) {
-  return board.map((row) => {
+  let totalPoints = 0;
+
+  const newBoard = board.map((row) => {
     let newRow = compressRow(row);
-    newRow = mergeRow(newRow);
-    newRow = compressRow(newRow);
+
+    const merged = mergeRow(newRow);
+    totalPoints += merged.points;
+
+    newRow = compressRow(merged.row);
 
     return newRow;
   });
+
+  return {
+    board: newBoard,
+    points: totalPoints,
+  };
 }
 
 function moveRight(board) {
-  return board.map((row) => {
+  let totalPoints = 0;
+
+  const newBoard = board.map((row) => {
     let newRow = [...row].reverse();
 
     newRow = compressRow(newRow);
-    newRow = mergeRow(newRow);
-    newRow = compressRow(newRow);
+
+    const merged = mergeRow(newRow);
+
+    totalPoints += merged.points;
+
+    newRow = compressRow(merged.row);
 
     return newRow.reverse();
   });
+
+  return {
+    board: newBoard,
+    points: totalPoints,
+  };
 }
 
 function moveUp(board) {
   const transposed = transpose(board);
 
-  const moved = moveLeft(transposed);
+  const result = moveLeft(transposed);
 
-  return transpose(moved);
+  return {
+    board: transpose(result.board),
+    points: result.points,
+  };
 }
 
 function moveDown(board) {
   const transposed = transpose(board);
 
-  const moved = moveRight(transposed);
+  const result = moveRight(transposed);
 
-  return transpose(moved);
+  return {
+    board: transpose(result.board),
+    points: result.points,
+  };
 }
 
 function addRandomTile(board) {
@@ -146,30 +175,33 @@ function hasWon(board) {
 function App() {
   const [board, setBoard] = useState(createInitialBoard());
   const [won, setWon] = useState(false);
+  const [score, setScore] = useState(0);
 
   function resetGame() {
     setBoard(createInitialBoard());
     setWon(false);
+    setScore(0);
   }
 
   useEffect(() => {
     function handleKeyDown(event) {
-      let newBoard = null;
+      let moveResult = null;
 
       if (event.key === "ArrowLeft") {
-        newBoard = moveLeft(board);
+        moveResult = moveLeft(board);
       }
       else if (event.key === "ArrowRight") {
-        newBoard = moveRight(board);
+        moveResult = moveRight(board);
       }
       else if (event.key === "ArrowUp") {
-        newBoard = moveUp(board);
+        moveResult = moveUp(board);
       }
       else if (event.key === "ArrowDown") {
-        newBoard = moveDown(board);
+        moveResult = moveDown(board);
       }
 
-      if (!newBoard) return;
+      if (!moveResult) return;
+      const newBoard = moveResult.board;
 
       const boardChanged = JSON.stringify(board) !== JSON.stringify(newBoard);
       
@@ -178,6 +210,7 @@ function App() {
       const finalBoard = addRandomTile(newBoard);
 
       setBoard(finalBoard);
+      setScore((prev) => prev + moveResult.points);
 
       if (hasWon(finalBoard) && !won) {
         setWon(true);
@@ -202,6 +235,8 @@ function App() {
       <button className="reset-button" onClick={resetGame}>
         Reset Game
       </button>
+
+      <h2>Score: {score}</h2>
 
       {won && <h2>You reached 2048! Keep going!</h2>}
 
