@@ -1,13 +1,22 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
-function createInitialBoard() {
+function createEmptyBoard() {
   return [
-    [2, 0, 0, 2],
-    [0, 4, 0, 0],
-    [0, 0, 8, 0],
-    [0, 0, 0, 16],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
   ];
+}
+
+function createInitialBoard() {
+  let board = createEmptyBoard();
+
+  board = addRandomTile(board);
+  board = addRandomTile(board);
+
+  return board;
 }
 
 function compressRow(row) {
@@ -186,6 +195,8 @@ function App() {
 
     return savedScore ? Number(savedScore) : 0;
   });
+  const [gameOver, setGameOver] = useState(false);
+
 
   function resetGame() {
     localStorage.removeItem("board");
@@ -194,6 +205,7 @@ function App() {
     setBoard(createInitialBoard());
     setWon(false);
     setScore(0);
+    setGameOver(false);
   }
 
   useEffect(() => {
@@ -230,7 +242,7 @@ function App() {
       }
 
       if (!canMove(finalBoard)) {
-      alert("Game Over!");
+      setGameOver(true);
       }
     }
 
@@ -260,10 +272,15 @@ function App() {
       <h2>Score: {score}</h2>
 
       {won && <h2>You reached 2048! Keep going!</h2>}
+      {gameOver && <h2>Game Over!</h2>}
 
       <div className="board">
         {board.flat().map((tile, index) => (
-          <div className="tile" key={index}>
+          <div className={
+             tile > 2048 ? "tile tile-super" : `tile tile-${tile}` 
+            }
+            key={index}
+          >
             {tile !== 0 ? tile : ""}
           </div>
         ))}

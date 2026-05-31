@@ -58,4 +58,65 @@ h2 {
   font-weight: bold;
   color: #776e65;
   border-radius: 5px;
+  font-weight: bold;
+  font-size: 2rem;
+  transition: all 0.15s ease;
+}
+
+.tile-2 {
+  background: #eee4da;
+}
+
+.tile-4 {
+  background: #ede0c8;
+}
+
+.tile-8 {
+  background: #f2b179;
+  color: white;
+}
+
+.tile-16 {
+  background: #f59563;
+  color: white;
+}
+
+.tile-32 {
+  background: #f67c5f;
+  color: white;
+}
+
+.tile-64 {
+  background: #f65e3b;
+  color: white;
+}
+
+.tile-128 {
+  background: #edcf72;
+  color: white;
+}
+
+.tile-256 {
+  background: #edcc61;
+  color: white;
+}
+
+.tile-512 {
+  background: #edc850;
+  color: white;
+}
+
+.tile-1024 {
+  background: #edc53f;
+  color: white;
+}
+
+.tile-2048 {
+  background: #edc22e;
+  color: white;
+}
+
+.tile-super {
+  background: #120f06;
+  color: white;
 }
