@@ -173,11 +173,24 @@ function hasWon(board) {
 }
 
 function App() {
-  const [board, setBoard] = useState(createInitialBoard());
+  const [board, setBoard] = useState(() => {
+    const savedBoard = localStorage.getItem("board");
+
+    return savedBoard
+      ? JSON.parse(savedBoard)
+      : createInitialBoard();
+  });
   const [won, setWon] = useState(false);
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(() => {
+    const savedScore = localStorage.getItem("score");
+
+    return savedScore ? Number(savedScore) : 0;
+  });
 
   function resetGame() {
+    localStorage.removeItem("board");
+    localStorage.removeItem("score");
+
     setBoard(createInitialBoard());
     setWon(false);
     setScore(0);
@@ -227,6 +240,14 @@ function App() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [board, won]);
+
+  useEffect(() => {
+    localStorage.setItem("board", JSON.stringify(board));
+  }, [board]);
+
+  useEffect(() => {
+    localStorage.setItem("score", score);
+  }, [score]);
 
   return (
     <div className="game">
