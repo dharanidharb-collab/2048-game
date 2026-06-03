@@ -285,6 +285,8 @@ function App() {
           </div>
         ))}
       </div>
+      <p>Use Arrow Keys to Move Tiles</p>
+
     </div>
   );
 }
