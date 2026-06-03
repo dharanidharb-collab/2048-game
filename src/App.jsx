@@ -195,6 +195,9 @@ function App() {
 
     return savedScore ? Number(savedScore) : 0;
   });
+  const [bestScore, setBestScore] = useState(() => {
+  return Number(localStorage.getItem("bestScore")) || 0;
+  });
   const [gameOver, setGameOver] = useState(false);
 
 
@@ -235,7 +238,14 @@ function App() {
       const finalBoard = addRandomTile(newBoard);
 
       setBoard(finalBoard);
-      setScore((prev) => prev + moveResult.points);
+
+      const newScore = score + moveResult.points;
+
+      setScore(newScore);
+
+      if (newScore > bestScore) {
+      setBestScore(newScore);
+      }
 
       if (hasWon(finalBoard) && !won) {
         setWon(true);
@@ -261,6 +271,10 @@ function App() {
     localStorage.setItem("score", score);
   }, [score]);
 
+  useEffect(() => {
+  localStorage.setItem("bestScore", bestScore);
+  }, [bestScore]);
+
   return (
     <div className="game">
       <h1>2048</h1>
@@ -270,6 +284,7 @@ function App() {
       </button>
 
       <h2>Score: {score}</h2>
+      <h2>Best Score: {bestScore}</h2>
 
       {won && <h2>You reached 2048! Keep going!</h2>}
       {gameOver && <h2>Game Over!</h2>}
