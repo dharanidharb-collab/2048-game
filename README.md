@@ -57,3 +57,9 @@ Open the local URL shown in the terminal.
 * Mobile touch controls
 * Online leaderboard
 * Additional visual effects
+
+# 2048 Game
+
+Live Demo: https://2048-game-tawny-nine.vercel.app
+
+A browser-based implementation...
