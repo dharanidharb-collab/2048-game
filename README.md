@@ -1,18 +1,59 @@
-# React + Vite
+# 2048 Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-based implementation of the classic 2048 puzzle game built using React and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+* Four-direction movement using arrow keys
+* Tile merging logic
+* Score tracking
+* Best score tracking
+* Win detection (2048 tile)
+* Game over detection
+* LocalStorage persistence
+* Reset game functionality
+* Tile color system
 
-## React Compiler
+## Technologies Used
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+* React
+* JavaScript
+* Vite
+* CSS
+* LocalStorage API
 
-Note: This will impact Vite dev & build performances.
+## Installation
 
-## Expanding the ESLint configuration
+Clone the repository and install dependencies:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open the local URL shown in the terminal.
+
+## How To Play
+
+* Use the arrow keys to move tiles.
+* Tiles with the same value merge when they collide.
+* Each merge increases your score.
+* Reach the 2048 tile to win.
+* Continue playing after reaching 2048 if desired.
+
+## Project Structure
+
+* `App.jsx` - Game logic and React state management
+* `App.css` - Styling and tile colors
+
+## Future Improvements
+
+* Smooth tile animations
+* Mobile touch controls
+* Online leaderboard
+* Additional visual effects
