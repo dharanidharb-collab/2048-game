@@ -312,6 +312,15 @@ function App() {
  
   useEffect(() => {
     function handleKeyDown(event) {
+      if (
+          event.key === "ArrowLeft" ||
+          event.key === "ArrowRight" ||
+          event.key === "ArrowUp" ||
+          event.key === "ArrowDown"
+      ) {
+          event.preventDefault();
+        }
+
       let moveResult = null;
 
       if (event.key === "ArrowLeft") {
@@ -409,7 +418,7 @@ function App() {
         }}
         onTouchEnd={(e) => {
           e.preventDefault();
-          
+
           const endX = e.changedTouches[0].clientX;
           const endY = e.changedTouches[0].clientY;
 
