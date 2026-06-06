@@ -204,17 +204,6 @@ function App() {
   const [playerName, setPlayerName] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-
-  function resetGame() {
-    localStorage.removeItem("board");
-    localStorage.removeItem("score");
-
-    setBoard(createInitialBoard());
-    setWon(false);
-    setScore(0);
-    setGameOver(false);
-  }
-
   async function submitScore() {
     if (playerName.trim().length < 3) {
       alert("Name must be at least 3 characters");
@@ -223,12 +212,13 @@ function App() {
 
     setSubmitting(true);
 
+    const trimmedName = playerName.trim();
+
     const { error } = await supabase
       .from("scores")
-      const trimmedName = playerName.trim();
       .insert([
         {
-          player_name: playerName,
+          player_name: trimmedName,
           score: bestScore,
         },
       ]);
@@ -238,6 +228,7 @@ function App() {
       setPlayerName("");
       alert("Score submitted!");
     }
+
     setSubmitting(false);
   }
 
@@ -253,6 +244,18 @@ function App() {
   }
 
 
+
+  function resetGame() {
+    localStorage.removeItem("board");
+    localStorage.removeItem("score");
+
+    setBoard(createInitialBoard());
+    setWon(false);
+    setScore(0);
+    setGameOver(false);
+  }
+
+ 
   useEffect(() => {
     function handleKeyDown(event) {
       let moveResult = null;
@@ -329,8 +332,17 @@ function App() {
         Reset Game
       </button>
 
-      <h2>Score: {score}</h2>
-      <h2>Best Score: {bestScore}</h2>
+      <div className="score-container">
+        <div className="score-box">
+          <span>Score</span>
+          <strong>{score}</strong>
+        </div>
+
+        <div className="score-box">
+          <span>Best</span>
+          <strong>{bestScore}</strong>
+        </div>
+      </div>
 
       <input
         type="text"

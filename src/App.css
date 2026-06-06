@@ -135,8 +135,58 @@ h2 {
 .leaderboard li {
   display: flex;
   justify-content: space-between;
-  padding: 8px 12px;
-  margin-bottom: 6px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #bbada0;
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .board {
+    grid-template-columns: repeat(4, 70px);
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .tile {
+    width: 70px;
+    height: 70px;
+    font-size: 1.5rem;
+  }
+
+  h1 {
+    font-size: 36px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  .leaderboard {
+    max-width: 300px;
+  }
+}
+
+.score-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.score-box {
+  background: #bbada0;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.score-box span {
+  display: block;
+  font-size: 14px;
+}
+
+.score-box strong {
+  font-size: 22px;
 }
