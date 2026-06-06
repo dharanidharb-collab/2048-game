@@ -45,6 +45,8 @@ h2 {
   background: #bbada0;
   padding: 10px;
   border-radius: 10px;
+
+  touch-action: none;
 }
 
 .tile {

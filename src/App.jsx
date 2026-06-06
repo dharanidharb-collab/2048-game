@@ -203,6 +203,7 @@ function App() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [playerName, setPlayerName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [touchStart, setTouchStart] = useState(null);
 
   async function submitScore() {
     if (playerName.trim().length < 3) {
@@ -214,14 +215,31 @@ function App() {
 
     const trimmedName = playerName.trim();
 
-    const { error } = await supabase
+    const { data: existingPlayer } = await supabase
       .from("scores")
-      .insert([
-        {
-          player_name: trimmedName,
-          score: bestScore,
-        },
-      ]);
+      .select("*")
+      .eq("player_name", trimmedName)
+      .single();
+
+    let error;
+
+    if (existingPlayer) {
+      ({ error } = await supabase
+        .from("scores")
+        .update({
+          score: Math.max(existingPlayer.score, bestScore),
+        })
+        .eq("id", existingPlayer.id));
+    } else {
+      ({ error } = await supabase
+        .from("scores")
+        .insert([
+          {
+            player_name: trimmedName,
+            score: bestScore,
+          },
+        ]));
+    }
 
     if (!error) {
       await loadScores();
@@ -255,49 +273,55 @@ function App() {
     setGameOver(false);
   }
 
+    function makeMove(direction) {
+    let moveResult = null;
+
+    if (direction === "left") {
+      moveResult = moveLeft(board);
+    } else if (direction === "right") {
+      moveResult = moveRight(board);
+    } else if (direction === "up") {
+      moveResult = moveUp(board);
+    } else if (direction === "down") {
+      moveResult = moveDown(board);
+    }
+
+    if (!moveResult) return;
+    
+    const newBoard = moveResult.board;
+
+    const boardChanged =
+      JSON.stringify(board) !== JSON.stringify(newBoard);
+
+    if (!boardChanged) return;
+  
+    const finalBoard = addRandomTile(newBoard);
+  
+    setBoard(finalBoard);
+    setScore((prev) => prev + moveResult.points);
+  
+    if (hasWon(finalBoard) && !won) {
+      setWon(true);
+    }
+  
+    if (!canMove(finalBoard)) {
+      setGameOver(true);
+    }
+  }
+
  
   useEffect(() => {
     function handleKeyDown(event) {
       let moveResult = null;
 
       if (event.key === "ArrowLeft") {
-        moveResult = moveLeft(board);
-      }
-      else if (event.key === "ArrowRight") {
-        moveResult = moveRight(board);
-      }
-      else if (event.key === "ArrowUp") {
-        moveResult = moveUp(board);
-      }
-      else if (event.key === "ArrowDown") {
-        moveResult = moveDown(board);
-      }
-
-      if (!moveResult) return;
-      const newBoard = moveResult.board;
-
-      const boardChanged = JSON.stringify(board) !== JSON.stringify(newBoard);
-      
-      if (!boardChanged) return;
-
-      const finalBoard = addRandomTile(newBoard);
-
-      setBoard(finalBoard);
-
-      const newScore = score + moveResult.points;
-
-      setScore(newScore);
-
-      if (newScore > bestScore) {
-      setBestScore(newScore);
-      }
-
-      if (hasWon(finalBoard) && !won) {
-        setWon(true);
-      }
-
-      if (!canMove(finalBoard)) {
-      setGameOver(true);
+        makeMove("left");
+      } else if (event.key === "ArrowRight") {
+        makeMove("right");
+      } else if (event.key === "ArrowUp") {
+        makeMove("up");
+      } else if (event.key === "ArrowDown") {
+        makeMove("down");
       }
     }
 
@@ -346,7 +370,7 @@ function App() {
 
       <input
         type="text"
-        placeholder="Enter name"
+        placeholder="Enter unique name"
         value={playerName}
         onChange={(e) => setPlayerName(e.target.value)}
       />
@@ -374,7 +398,40 @@ function App() {
       {won && <h2>You reached 2048! Keep going!</h2>}
       {gameOver && <h2>Game Over!</h2>}
 
-      <div className="board">
+      <div
+        className="board"
+        onTouchStart={(e) =>{
+          e.preventDefault();
+          setTouchStart({
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+          });
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          
+          const endX = e.changedTouches[0].clientX;
+          const endY = e.changedTouches[0].clientY;
+
+          const deltaX = endX - touchStart.x;
+          const deltaY = endY - touchStart.y;
+
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX > 50) {
+              makeMove("right");
+            } else if (deltaX < -50) {
+              makeMove("left");
+            }
+          } else {
+            if (deltaY > 50) {
+              makeMove("down");
+            } else if (deltaY < -50) {
+              makeMove("up");
+            }
+          }
+        }
+      }     
+      >
         {board.flat().map((tile, index) => (
           <div className={
              tile > 2048 ? "tile tile-super" : `tile tile-${tile}` 
