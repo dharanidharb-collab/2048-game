@@ -361,98 +361,127 @@ function App() {
     <div className="game">
       <h1>2048</h1>
 
-      <button className="reset-button" onClick={resetGame}>
-        Reset Game
-      </button>
-
-      <div className="score-container">
-        <div className="score-box">
-          <span>Score</span>
-          <strong>{score}</strong>
-        </div>
-
-        <div className="score-box">
-          <span>Best</span>
-          <strong>{bestScore}</strong>
-        </div>
-      </div>
-
-      <input
-        type="text"
-        placeholder="Enter unique name"
-        value={playerName}
-        onChange={(e) => setPlayerName(e.target.value)}
-      />
-
-      <button
-        onClick={submitScore}
-        disabled={submitting}
-      >
-        {submitting ? "Submitting..." : "Submit Score"}
-      </button>
-
-      <div className="leaderboard">
-      <h2>🏆 Global Leaderboard</h2>
-
-        <ol>
-          {leaderboard.map((entry) => (
-            <li key={entry.id}>
-              <span>{entry.player_name}</span>
-              <span>{entry.score}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {won && <h2>You reached 2048! Keep going!</h2>}
-      {gameOver && <h2>Game Over!</h2>}
-
-      <div
-        className="board"
-        onTouchStart={(e) =>{
-          e.preventDefault();
-          setTouchStart({
-            x: e.touches[0].clientX,
-            y: e.touches[0].clientY,
-          });
-        }}
-        onTouchEnd={(e) => {
-          e.preventDefault();
-
-          const endX = e.changedTouches[0].clientX;
-          const endY = e.changedTouches[0].clientY;
-
-          const deltaX = endX - touchStart.x;
-          const deltaY = endY - touchStart.y;
-
-          if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (deltaX > 50) {
-              makeMove("right");
-            } else if (deltaX < -50) {
-              makeMove("left");
-            }
-          } else {
-            if (deltaY > 50) {
-              makeMove("down");
-            } else if (deltaY < -50) {
-              makeMove("up");
-            }
-          }
-        }
-      }     
-      >
-        {board.flat().map((tile, index) => (
-          <div className={
-             tile > 2048 ? "tile tile-super" : `tile tile-${tile}` 
-            }
-            key={index}
-          >
-            {tile !== 0 ? tile : ""}
+      <div className="game-layout">
+      
+        <div className="game-left">
+      
+          <div className="score-container">
+            <div className="score-box">
+              <span>Score</span>
+              <strong>{score}</strong>
+            </div>
+      
+            <div className="score-box">
+              <span>Best</span>
+              <strong>{bestScore}</strong>
+            </div>
+      
+            <button
+              className="reset-button"
+              onClick={resetGame}
+            >
+              New Game
+            </button>
           </div>
-        ))}
+      
+          {won && <h2>You reached 2048! Keep going!</h2>}
+          {gameOver && <h2>Game Over!</h2>}
+      
+          <div
+            className="board"
+            onTouchStart={(e) => {
+              e.preventDefault();
+              setTouchStart({
+                x: e.touches[0].clientX,
+                y: e.touches[0].clientY,
+              });
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+      
+              const endX = e.changedTouches[0].clientX;
+              const endY = e.changedTouches[0].clientY;
+      
+              const deltaX = endX - touchStart.x;
+              const deltaY = endY - touchStart.y;
+      
+              if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 50) {
+                  makeMove("right");
+                } else if (deltaX < -50) {
+                  makeMove("left");
+                }
+              } else {
+                if (deltaY > 50) {
+                  makeMove("down");
+                } else if (deltaY < -50) {
+                  makeMove("up");
+                }
+              }
+            }}
+          >
+            {board.flat().map((tile, index) => (
+              <div
+                className={
+                  tile > 2048
+                    ? "tile tile-super"
+                    : `tile tile-${tile}`
+                }
+                key={index}
+              >
+                {tile !== 0 ? tile : ""}
+              </div>
+            ))}
+          </div>
+      
+          <p>Desktop: Use Arrow Keys</p>
+          <p>Mobile: Swipe on the Board</p>
+      
+        </div>
+      
+        <div className="game-right">
+      
+          <input
+            type="text"
+            placeholder="Enter unique username"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+          />
+      
+          <button
+            onClick={submitScore}
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit Score"}
+          </button>
+      
+          <div className="leaderboard">
+            <h2>🏆 Global Leaderboard</h2>
+      
+            <ol>
+              {leaderboard.map((entry, index) => (
+                <li key={entry.id}>
+                  <span>
+                    {index === 0
+                      ? "🥇"
+                      : index === 1
+                      ? "🥈"
+                      : index === 2
+                      ? "🥉"
+                      : `${index + 1}.`}
+                    {" "}
+                    {entry.player_name}
+                  </span>
+      
+                  <span>{entry.score}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+      
+        </div>
+      
       </div>
-      <p>Use Arrow Keys to Move Tiles</p>
-
     </div>
   );
 }
