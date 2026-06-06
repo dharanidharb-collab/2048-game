@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import { supabase } from "./supabase";
 
 function createEmptyBoard() {
   return [
@@ -199,6 +200,9 @@ function App() {
   return Number(localStorage.getItem("bestScore")) || 0;
   });
   const [gameOver, setGameOver] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [playerName, setPlayerName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
 
   function resetGame() {
@@ -210,6 +214,44 @@ function App() {
     setScore(0);
     setGameOver(false);
   }
+
+  async function submitScore() {
+    if (playerName.trim().length < 3) {
+      alert("Name must be at least 3 characters");
+      return;
+    }
+
+    setSubmitting(true);
+
+    const { error } = await supabase
+      .from("scores")
+      const trimmedName = playerName.trim();
+      .insert([
+        {
+          player_name: playerName,
+          score: bestScore,
+        },
+      ]);
+
+    if (!error) {
+      await loadScores();
+      setPlayerName("");
+      alert("Score submitted!");
+    }
+    setSubmitting(false);
+  }
+
+  async function loadScores() {
+    const { data, error } = await supabase
+      .from("scores")
+      .select("*")
+      .order("score", { ascending: false });
+
+    if (!error) {
+      setLeaderboard(data.slice(0, 10));
+    }
+  }
+
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -272,8 +314,12 @@ function App() {
   }, [score]);
 
   useEffect(() => {
-  localStorage.setItem("bestScore", bestScore);
+    localStorage.setItem("bestScore", bestScore);
   }, [bestScore]);
+
+  useEffect(() => {
+    loadScores();
+  }, []);
 
   return (
     <div className="game">
@@ -285,6 +331,33 @@ function App() {
 
       <h2>Score: {score}</h2>
       <h2>Best Score: {bestScore}</h2>
+
+      <input
+        type="text"
+        placeholder="Enter name"
+        value={playerName}
+        onChange={(e) => setPlayerName(e.target.value)}
+      />
+
+      <button
+        onClick={submitScore}
+        disabled={submitting}
+      >
+        {submitting ? "Submitting..." : "Submit Score"}
+      </button>
+
+      <div className="leaderboard">
+      <h2>🏆 Global Leaderboard</h2>
+
+        <ol>
+          {leaderboard.map((entry) => (
+            <li key={entry.id}>
+              <span>{entry.player_name}</span>
+              <span>{entry.score}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
 
       {won && <h2>You reached 2048! Keep going!</h2>}
       {gameOver && <h2>Game Over!</h2>}
