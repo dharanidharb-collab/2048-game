@@ -197,7 +197,10 @@ function App() {
     return savedScore ? Number(savedScore) : 0;
   });
   const [bestScore, setBestScore] = useState(() => {
-  return Number(localStorage.getItem("bestScore")) || 0;
+    return Number(localStorage.getItem("bestScore")) || 0;
+  });
+  const [lastScore, setLastScore] = useState(() => {
+    return Number(localStorage.getItem("lastScore")) || 0;
   });
   const [gameOver, setGameOver] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -215,6 +218,15 @@ function App() {
 
     const trimmedName = playerName.trim();
 
+    const scoreToSubmit =
+      score > 0 ? score : lastScore;
+
+      if (scoreToSubmit === 0) {
+        alert("No score available to submit");
+        setSubmitting(false);
+        return;
+      }
+
     const { data: existingPlayer } = await supabase
       .from("scores")
       .select("*")
@@ -227,7 +239,7 @@ function App() {
       ({ error } = await supabase
         .from("scores")
         .update({
-          score: Math.max(existingPlayer.score, bestScore),
+          score: Math.max(existingPlayer.score, scoreToSubmit),
         })
         .eq("id", existingPlayer.id));
     } else {
@@ -236,7 +248,7 @@ function App() {
         .insert([
           {
             player_name: trimmedName,
-            score: bestScore,
+            score: scoreToSubmit,
           },
         ]));
     }
@@ -273,7 +285,7 @@ function App() {
     setGameOver(false);
   }
 
-    function makeMove(direction) {
+  function makeMove(direction) {
     let moveResult = null;
 
     if (direction === "left") {
@@ -305,6 +317,7 @@ function App() {
     }
   
     if (!canMove(finalBoard)) {
+      setLastScore(score + moveResult.points);
       setGameOver(true);
     }
   }
@@ -352,6 +365,12 @@ function App() {
   useEffect(() => {
     localStorage.setItem("bestScore", bestScore);
   }, [bestScore]);
+  
+  useEffect(() => {
+    if (score > bestScore) {
+      setBestScore(score);
+    }
+  }, [score, bestScore]);
 
   useEffect(() => {
     loadScores();
